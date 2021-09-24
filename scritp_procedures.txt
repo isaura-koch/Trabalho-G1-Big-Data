@@ -1,0 +1,54 @@
+------Procedure A
+
+CREATE OR REPLACE PROCEDURE criar_sessoes(IN in_cod_espet INT, IN in_inicio TIMESTAMP WITHOUT TIME ZONE,
+ IN in_cod_periodicidade INT, IN in_durac INT, in_preco IN NUMERIC)
+LANGUAGE plpgsql AS $$
+	BEGIN
+
+		INSERT INTO sessao (cod_espetaculo, data_hora_inicio, duracao, preco, cod_periodicidade) 
+		VALUES (in_cod_espet, in_inicio, in_durac, in_preco, in_cod_periodicidade);
+
+	END
+	$$
+
+-----Procedure B
+CREATE OR REPLACE PROCEDURE define_total_ingressos(IN in_cod_sec INT, IN in_total_ing INT)
+LANGUAGE plpgsql AS $$
+	BEGIN
+
+		UPDATE sessao SET total_ingressos = in_total_ing 
+		WHERE cod_sessao = in_cod_sec;
+
+	END;
+	$$
+
+----Procedure C
+
+CREATE OR REPLACE PROCEDURE criar_pedido(IN in_data_pedido TIMESTAMP WITHOUT TIME ZONE, IN in_cod_cliente INT, INOUT out_cod_ped INT)
+LANGUAGE plpgsql AS $$
+	BEGIN
+	
+		IF (SELECT ativo FROM cliente WHERE cod_cliente = in_cod_cliente) != 'I' THEN
+
+			INSERT INTO pedido(cod_cliente, data_pedido, status)
+			VALUES(in_cod_cliente, in_data_pedido, 'A') RETURNING cod_pedido INTO out_cod_ped;
+		ELSE
+			RAISE EXCEPTION 'O cliente de cód. % está inativo!', in_cod_cliente
+			USING HINT = 'Selecione um cliente Ativo'
+		END IF;
+	END;
+	$$
+
+----Procedure D
+
+CREATE OR REPLACE PROCEDURE criar_reserva(IN in_cod_espet INT, IN in_cod_sec INT, IN in_cod_ped INT, IN in_cadeira VARCHAR(10))
+LANGUAGE plpgsql AS $$
+	BEGIN
+		
+		INSERT INTO reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
+		VALUES(in_cod_ped, in_cod_espet, in_cod_sec, in_cadeira)
+		
+		-- Se o Cód. Sessão ou Cód. Espetaculo não existirem, o próprio banco de dados dispara uma excessão, pois esses campos se tratam de chaves estrangeiras, que precisam existir.
+		
+	END;
+	$$
