@@ -1,0 +1,64 @@
+
+-----Retorna o total de ingressos disponiveis
+Select * from sessao;
+
+CREATE OR REPLACE FUNCTION sessao_ingresso(numeric(5))
+	RETURNS FLOAT AS
+	
+$$
+DECLARE
+	sessao_line ALIAS FOR $1;
+	count_ingress1 integer;
+	count_ingress2 integer;
+BEGIN
+	count_ingress1 = (SELECT total_ingressos FROM sessao WHERE cod_sessao = sessao_line );
+	count_ingress2 = (SELECT ingressos_disponiveis FROM sessao WHERE cod_sessao = sessao_line );
+	RAISE NOTICE 'Ingressos totais: % | Inrgessos disponiveis: %', count_ingress1, count_ingress2;
+	RETURN count_ingress1;
+END
+$$ LANGUAGE plpgsql;
+
+select sessao_ingresso(1)
+
+-------Retorna a cadeira reservada pelo cod_reserva
+Select * from reserva;
+
+CREATE OR REPLACE FUNCTION reserva_assentos(numeric(5))
+	RETURNS FLOAT AS
+	
+$$
+DECLARE
+	acento_code ALIAS FOR $1;
+	cadeira_reservada integer;
+	
+BEGIN
+	cadeira_reservada = (SELECT cadeira FROM reserva WHERE cod_reserva = acento_code );
+	RAISE NOTICE 'No reserva % esta reservado a cadeira %',acento_code, cadeira_reservada;
+	RETURN cadeira_reservada;
+END
+$$ LANGUAGE plpgsql;
+
+select reserva_assentos(1);
+
+---------Retorna a quantidade de pedidos de um determinado cliente
+Select * from pedido;
+Select * from cliente;
+
+CREATE OR REPLACE FUNCTION cliente_pedido(numeric(5))
+	RETURNS FLOAT AS
+	
+$$
+DECLARE
+	codigo_cliente ALIAS FOR $1;
+	num_pedidos integer;
+	
+BEGIN
+	num_pedidos = (SELECT COUNT(cod_pedido) FROM pedido WHERE cod_cliente = codigo_cliente );
+	RAISE NOTICE 'O cliente % tem o total de % pedidos',codigo_cliente, num_pedidos;
+	RETURN num_pedidos;
+END
+$$ LANGUAGE plpgsql;
+
+Select cliente_pedido(1);
+
+				
