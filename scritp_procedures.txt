@@ -44,11 +44,21 @@ LANGUAGE plpgsql AS $$
 CREATE OR REPLACE PROCEDURE criar_reserva(IN in_cod_espet INT, IN in_cod_sec INT, IN in_cod_ped INT, IN in_cadeira VARCHAR(10))
 LANGUAGE plpgsql AS $$
 	BEGIN
-		
-		INSERT INTO reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
-		VALUES(in_cod_ped, in_cod_espet, in_cod_sec, in_cadeira)
-		
-		-- Se o Cód. Sessão ou Cód. Espetaculo não existirem, o próprio banco de dados dispara uma excessão, pois esses campos se tratam de chaves estrangeiras, que precisam existir.
+		IF EXISTS (SELECT cod_sessao FROM sessao WHERE cod_sessao = in_cod_sec) THEN
+			
+			IF EXISTS (SELECT cod_espetaculo FROM espetaculo WHERE cod_espetaculo = in_cod_espet) THEN
+				
+				INSERT INTO reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
+				VALUES(in_cod_ped, in_cod_espet, in_cod_sec, in_cadeira);
+			ELSE
+				RAISE EXCEPTION 'Não existe espetaculo com o Cód. %', in_cod_espet
+				USING HINT = 'Selecione um Cód. válido.'
+			END IF;
+			
+		ELSE
+			RAISE EXCEPTION 'Não existe sessão com o Cód. %', in_cod_sec
+			USING HINT = 'Selecione um Cód. válido.'
+		END IF;			
 		
 	END;
 	$$
