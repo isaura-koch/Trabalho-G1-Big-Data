@@ -1,0 +1,90 @@
+--RODAR CADA INSERT UNICAMENTE
+--SE DER ERRO, RODA DE NOVO
+
+
+
+set search_path to trabalho_g1;
+
+INSERT INTO cidade(nome, uf)
+SELECT CASE WHEN RANDOM() < 0.5 THEN 'Passo Fundo' ELSE 'Florianópolis' end,
+	CASE WHEN RANDOM() < 0.5 THEN 'rs' ELSE 'sc' 
+	END FROM generate_series(1, 100);
+	
+INSERT INTO cidade(nome, uf) VALUES ('Passo Fundo', 'rs'), ('Florianópolis', 'sc') 
+
+INSERT INTO cliente(nome, sobrenome, cpf, endereco_entrega, cod_cidade, status)
+SELECT md5((RANDOM()::TEXT))::varchar(11),
+	md5((RANDOM()::TEXT))::varchar(11),
+	md5((RANDOM()::TEXT))::varchar(11),
+	md5(RANDOM()::TEXT),
+	CASE WHEN RANDOM() < 0.5 THEN 104 ELSE 105 END, 
+	CASE WHEN RANDOM() < 0.5 THEN 'A' ELSE 'I' END
+	FROM generate_series(1, 100);
+		
+INSERT INTO periodicidade(descricao)
+SELECT CASE WHEN RANDOM() < 0.2 THEN 'DIÁRIA'
+	WHEN RANDOM() > 0.2 THEN 'SEMANAL'
+	ELSE 'MENSAL' END
+	FROM generate_series(1, 100);
+	
+INSERT INTO tipo_espetaculo(descricao)
+	select md5((RANDOM()::TEXT))::varchar(11)
+	FROM generate_series(1,100);
+	
+INSERT INTO estabelecimento(nome, endereco, tem_estacionamento, cod_tipo_espetaculo, cod_cidade)
+	select md5((RANDOM()::TEXT))::varchar(11),
+	md5((RANDOM()::TEXT))::varchar(11),
+	CASE WHEN RANDOM() < 0.7 THEN TRUE
+	ELSE FALSE END,
+	(random() * 10 + 1::INT),
+	CASE WHEN RANDOM() < 0.5 THEN 104 ELSE 105 END	
+	FROM generate_series(1,100);
+	
+INSERT INTO espetaculo(nome, descricao, cod_estabelecimento)
+	SELECT md5((RANDOM()::TEXT))::varchar(11),
+	md5((RANDOM()::TEXT))::varchar(11),
+	(random() * 47 + 100::INT)
+	FROM generate_series(1,100);
+	
+select * from espetaculo
+select * from periodicidade
+select * from sessao
+	
+INSERT INTO sessao(cod_espetaculo, data_hora_inicio, duracao, total_ingressos, ingressos_disponiveis, preco, cod_periodicidade)
+	SELECT (random() * 18 + 2120::INT),
+	now(),
+	(random() * 10 + 20),
+	(random() * 47 + 100::INT),
+	(random() * 47 + 10::INT),
+	(random() * 10 + 20),
+	(random() * 47::INT)
+	FROM generate_series(1,100);
+	
+INSERT INTO sessao(cod_espetaculo, data_hora_inicio, duracao, total_ingressos, ingressos_disponiveis, preco, cod_periodicidade)
+	SELECT (random() * 18 + 2120::INT),
+	now(),
+	(random() * 10 + 20),
+	(random() * 47 + 100::INT),
+	(random() * 47 + 10::INT),
+	(random() * 10 + 20),
+	(random() * 47::INT)
+	FROM generate_series(1,100);
+
+select * from pedido
+
+INSERT INTO pedido(cod_cliente, data_pedido, status)
+	SELECT (random() * 100 + 108 ::INT),
+	now(),
+	CASE WHEN RANDOM() < 0.2 THEN 'I'
+	ELSE 'A' END	
+	FROM generate_series(1,100);
+	
+	
+INSERT INTO reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
+	SELECT (random() * 10 + 5401 ::int),
+	(random() * 10 + 2107 ::INT),
+	(random() * 10 + 1301 ::INT),
+	md5((RANDOM()::TEXT))::varchar(4)
+	FROM generate_series(1,100);
+	
+	
