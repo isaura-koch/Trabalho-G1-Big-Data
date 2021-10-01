@@ -9,7 +9,7 @@ LANGUAGE plpgsql AS $$
 		VALUES (in_cod_espet, in_inicio, in_durac, in_preco, in_cod_periodicidade);
 
 	END
-	$$
+	$$;
 
 -----Procedure B
 CREATE OR REPLACE PROCEDURE define_total_ingressos(IN in_cod_sec INT, IN in_total_ing INT)
@@ -20,7 +20,7 @@ LANGUAGE plpgsql AS $$
 		WHERE cod_sessao = in_cod_sec;
 
 	END;
-	$$
+	$$;
 
 ----Procedure C
 
@@ -34,10 +34,10 @@ LANGUAGE plpgsql AS $$
 			VALUES(in_cod_cliente, in_data_pedido, 'A') RETURNING cod_pedido INTO out_cod_ped;
 		ELSE
 			RAISE EXCEPTION 'O cliente de cód. % está inativo!', in_cod_cliente
-			USING HINT = 'Selecione um cliente Ativo'
+			USING HINT = 'Selecione um cliente Ativo';
 		END IF;
 	END;
-	$$
+	$$;
 
 ----Procedure D
 
@@ -52,13 +52,49 @@ LANGUAGE plpgsql AS $$
 				VALUES(in_cod_ped, in_cod_espet, in_cod_sec, in_cadeira);
 			ELSE
 				RAISE EXCEPTION 'Não existe espetaculo com o Cód. %', in_cod_espet
-				USING HINT = 'Selecione um Cód. válido.'
+				USING HINT = 'Selecione um Cód. válido.';
 			END IF;
 			
 		ELSE
 			RAISE EXCEPTION 'Não existe sessão com o Cód. %', in_cod_sec
-			USING HINT = 'Selecione um Cód. válido.'
+			USING HINT = 'Selecione um Cód. válido.';
 		END IF;			
 		
 	END;
-	$$
+	$$;
+	
+----Procedure E
+
+
+CREATE OR REPLACE PROCEDURE registra_historico(IN in_cod_cliente INT)
+LANGUAGE plpgsql AS $$
+	
+	DECLARE
+		
+		cod_pedido_existente INT;
+	
+	BEGIN
+	
+		FOR cod_pedido_existente IN
+			SELECT p.cod_pedido FROM pedido p 
+			WHERE cod_cliente = in_cod_cliente AND 
+			data_pedido BETWEEN current_date - 30 AND current_date
+			
+		LOOP 
+			INSERT INTO historico (data_notificacao, cod_pedido, mensagem)
+				SELECT current_date,
+				cod_pedido_existente,
+				'Total dos gastos: ' || 
+					(SELECT SUM(preco) FROM sessao s
+					JOIN reserva r ON s.cod_sessao = r.cod_sessao
+					WHERE r.cod_pedido = cod_pedido_existente);
+		END LOOP;
+
+	END;
+	$$;
+
+--203
+
+
+--insert into reserva (cod_pedido, cod_espetaculo, cod_sessao, cadeira) values (5418, 2123,1302, 'aaaabb')
+

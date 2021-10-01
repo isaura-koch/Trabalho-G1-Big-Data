@@ -64,7 +64,7 @@ CREATE TABLE estabelecimento (
 	cod_estabelecimento INT NOT NULL,
 	nome VARCHAR(50) NOT NULL,
 	endereco VARCHAR(50),
-	tem_estacionamento BOOLEAN DEFAULT 'f',
+	tem_estacionamento BOOLEAN DEFAULT 'false',
 	cod_tipo_espetaculo INT NOT NULL,
         cod_cidade INT NOT NULL
 );
@@ -160,3 +160,17 @@ ALTER TABLE reserva ADD CONSTRAINT reserva_sessao_fk
 
 ALTER TABLE reserva
 	ALTER COLUMN cod_reserva ADD GENERATED ALWAYS AS IDENTITY;
+	
+----------------------------------------------------------------------------
+
+CREATE TABLE notificacao (
+	cod_notificacao INT NOT NULL,
+	data_notificacao DATE,
+	cod_pedido INT NOT NULL,
+	mensagem TEXT
+);
+
+ALTER TABLE notificacao ADD PRIMARY KEY (cod_notificacao);
+
+ALTER TABLE notificacao ADD CONSTRAINT cod_pedido_fk
+	FOREIGN KEY (cod_pedido) REFERENCES pedido (cod_pedido);
