@@ -13,8 +13,17 @@ DECLARE
 BEGIN
 	count_ingress1 = (SELECT total_ingressos FROM sessao WHERE cod_sessao = sessao_line );
 	count_ingress2 = (SELECT ingressos_disponiveis FROM sessao WHERE cod_sessao = sessao_line );
-	RAISE NOTICE 'Ingressos totais: % | Inrgessos disponiveis: %', count_ingress1, count_ingress2;
-	RETURN count_ingress1;
+	
+	IF(count_ingress1 != null OR count_ingress2 != null) THEN
+		RAISE NOTICE 'Ingressos totais: % | Inrgessos disponiveis: %', count_ingress1, count_ingress2;
+		RETURN count_ingress1;
+		
+	ELSE
+		RAISE EXCEPTION 'O codigo da sessao % está não existe!', sessao_line
+		USING HINT = 'Verifique o codigo da sessao';
+	
+	END IF;
+	
 END
 $$ LANGUAGE plpgsql;
 
@@ -33,8 +42,13 @@ DECLARE
 	
 BEGIN
 	cadeira_reservada = (SELECT cadeira FROM reserva WHERE cod_reserva = acento_code );
-	RAISE NOTICE 'No reserva % esta reservado a cadeira %',acento_code, cadeira_reservada;
-	RETURN cadeira_reservada;
+	IF(cadeira_reservada != null) THEN
+		RETURN cadeira_reservada;
+	ELSE
+		RAISE EXCEPTION 'A cadeira reservada % não existe!', acento_code
+		USING HINT = 'Verifique o codigo da reserva';
+		
+	END IF; 
 END
 $$ LANGUAGE plpgsql;
 
@@ -54,11 +68,69 @@ DECLARE
 	
 BEGIN
 	num_pedidos = (SELECT COUNT(cod_pedido) FROM pedido WHERE cod_cliente = codigo_cliente );
-	RAISE NOTICE 'O cliente % tem o total de % pedidos',codigo_cliente, num_pedidos;
-	RETURN num_pedidos;
+	IF(num_pedidos != null) THEN
+		RETURN num_pedidos;
+	ELSE
+		RAISE EXCEPTION 'O numero % do cliente não existe', num_pedidos
+		USING HINT = 'Verifique o codigo do cliente';
+	END IF;
+	
 END
 $$ LANGUAGE plpgsql;
 
 Select cliente_pedido(1);
 
+
+---------Retorna o codigo do espetáculo referente ao codigo da reserva
+CREATE OR REPLACE FUNCTION espetaculos_reservas(numeric(5))
+	RETURNS FLOAT AS
+	
+$$
+DECLARE
+	num_pedido ALIAS FOR $1;
+	espetaculo integer;
+
+BEGIN
+	espetaculo = (SELECT cod_espetaculo FROM reserva WHERE cod_pedido = num_pedido  );
+	IF(espetaculo) != null THEN
+		RETURN espetaculo;
+	ELSE 
+		RAISE EXCEPTION 'O codigo do pedido % está não existe!', num_pedido
+		USING HINT = 'Verifique o codigo do pedido';
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+select espetaculos_reservas(1)
+
+
+--------- Retorna o codigo do espetaculo da cidade do cliente 
+Select * from espetaculo;
+Select * from estabelecimento;
+Select * from cidade;
+Select * from cliente;
+
+
+CREATE OR REPLACE FUNCTION esp_cid_cli(numeric(5))
+	RETURNS FLOAT AS
+	
+$$
+DECLARE
+	num_cleinte ALIAS FOR $1;
+	city integer;
+	place integer;
+	espetaculo integer;
+
+BEGIN
+	espetaculo = (SELECT cod_espetaculo FROM espetaculo WHERE cod_estabelecimento = (SELECT cod_estabelecimento FROM estabelecimento WHERE cod_cidade = (SELECT cod_cidade FROM cliente WHERE cod_cliente = num_cleinte)));
+	IF(espetaculo) != null THEN
+		RETURN espetaculo;
+	ELSE 
+		RAISE EXCEPTION 'Não há espetaculo na cidade do cliente %', num_cleinte
+		USING HINT = 'Verifique o codigo do cliente';
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
 				
+				
+SELECT esp_cid_cli(1);
