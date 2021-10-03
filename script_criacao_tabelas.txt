@@ -174,3 +174,6 @@ ALTER TABLE notificacao ADD PRIMARY KEY (cod_notificacao);
 
 ALTER TABLE notificacao ADD CONSTRAINT cod_pedido_fk
 	FOREIGN KEY (cod_pedido) REFERENCES pedido (cod_pedido);
+
+ALTER TABLE notificacao 
+	ALTER COLUMN cod_notificacao  ADD GENERATED ALWAYS AS IDENTITY;
