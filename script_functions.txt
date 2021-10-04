@@ -1,9 +1,11 @@
+SET search_path TO trabalho_g1;
+
 
 -----Retorna o total de ingressos disponiveis
 Select * from sessao;
 
 CREATE OR REPLACE FUNCTION sessao_ingresso(numeric(5))
-	RETURNS FLOAT AS
+	RETURNS INTEGER AS
 	
 $$
 DECLARE
@@ -16,7 +18,7 @@ BEGIN
 	
 	IF(count_ingress1 != null OR count_ingress2 != null) THEN
 		RAISE NOTICE 'Ingressos totais: % | Inrgessos disponiveis: %', count_ingress1, count_ingress2;
-		RETURN count_ingress1;
+		RETURN count_ingress2;
 		
 	ELSE
 		RAISE EXCEPTION 'O codigo da sessao % está não existe!', sessao_line
@@ -27,13 +29,13 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-select sessao_ingresso(1)
+select sessao_ingresso(1);
 
 -------Retorna a cadeira reservada pelo cod_reserva
 Select * from reserva;
 
 CREATE OR REPLACE FUNCTION reserva_assentos(numeric(5))
-	RETURNS FLOAT AS
+	RETURNS INTEGER AS
 	
 $$
 DECLARE
@@ -59,7 +61,7 @@ Select * from pedido;
 Select * from cliente;
 
 CREATE OR REPLACE FUNCTION cliente_pedido(numeric(5))
-	RETURNS FLOAT AS
+	RETURNS INTEGER AS
 	
 $$
 DECLARE
@@ -68,7 +70,7 @@ DECLARE
 	
 BEGIN
 	num_pedidos = (SELECT COUNT(cod_pedido) FROM pedido WHERE cod_cliente = codigo_cliente );
-	IF(num_pedidos != null) THEN
+	IF(num_pedidos != null OR num_pedidos != 0) THEN
 		RETURN num_pedidos;
 	ELSE
 		RAISE EXCEPTION 'O numero % do cliente não existe', num_pedidos
@@ -83,7 +85,7 @@ Select cliente_pedido(1);
 
 ---------Retorna o codigo do espetáculo referente ao codigo da reserva
 CREATE OR REPLACE FUNCTION espetaculos_reservas(numeric(5))
-	RETURNS FLOAT AS
+	RETURNS INTEGER AS
 	
 $$
 DECLARE
@@ -111,26 +113,33 @@ Select * from cidade;
 Select * from cliente;
 
 
-CREATE OR REPLACE FUNCTION esp_cid_cli(numeric(5))
-	RETURNS FLOAT AS
-	
-$$
+CREATE OR REPLACE FUNCTION trabalho_g1.esp_cid_cli(numeric)
+    RETURNS double precision
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
 DECLARE
 	num_cleinte ALIAS FOR $1;
 	city integer;
 	place integer;
-	espetaculo integer;
+	espetaculo INTEGER;
+	estabelecimentos integer;
 
 BEGIN
-	espetaculo = (SELECT cod_espetaculo FROM espetaculo WHERE cod_estabelecimento = (SELECT cod_estabelecimento FROM estabelecimento WHERE cod_cidade = (SELECT cod_cidade FROM cliente WHERE cod_cliente = num_cleinte)));
-	IF(espetaculo) != null THEN
-		RETURN espetaculo;
+			
+	espetaculo = (SELECT COUNT(esp.cod_espetaculo) 
+				  FROM espetaculo esp 
+				  JOIN estabelecimento est ON esp.cod_estabelecimento = est.cod_estabelecimento 
+				  WHERE est.cod_cidade = (SELECT cod_cidade FROM cliente WHERE cod_cliente = num_cleinte));
+	
+	IF(espetaculo) != 0 THEN
+			RETURN espetaculo;
 	ELSE 
 		RAISE EXCEPTION 'Não há espetaculo na cidade do cliente %', num_cleinte
 		USING HINT = 'Verifique o codigo do cliente';
 	END IF;
 END;
-$$ LANGUAGE plpgsql;
 				
 				
 SELECT esp_cid_cli(1);
