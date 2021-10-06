@@ -12,20 +12,25 @@ BEGIN
 	IF (quantidade_ingressos_disponiveis = 0) THEN
 		RAISE EXCEPTION 'Nao é possivel fazer a reserva, pois nao ha ingressos disponiveis';
     END IF;
+
+	RETURN NEW;
 END
 $BODY$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trabalho_g1.trg_reserva_ingressos_se_disponiveis
+CREATE TRIGGER trg_reserva_ingressos_se_disponiveis
 	BEFORE INSERT ON trabalho_g1.reserva
 	FOR EACH ROW
 	EXECUTE PROCEDURE trabalho_g1.fn_reserva_ingressos_se_disponiveis();
+
+-- Exemplos para 4a
+-- ...
 
 
 -- ======================================================
 
 
 -- 4b
-CREATE TABLE historico_reserva (
+CREATE TABLE trabalho_g1.historico_reserva (
 	cod_hist_reserva SERIAL PRIMARY KEY,
 	cod_pedido INT NOT NULL,
 	cod_espetaculo INT NOT NULL,
@@ -39,13 +44,18 @@ $BODY$
 BEGIN
 	INSERT INTO trabalho_g1.historico_reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
 	VALUES (OLD.cod_pedido, OLD.cod_espetaculo, OLD.cod_sessao, OLD.cadeira);
+
+	RETURN OLD;
 END
 $BODY$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trabalho_g1.trg_mantem_hist_reserva
+CREATE TRIGGER trg_mantem_hist_reserva
 	BEFORE DELETE ON trabalho_g1.reserva
 	FOR EACH ROW
 	EXECUTE PROCEDURE trabalho_g1.fn_mantem_hist_reserva();
+
+-- Exemplos para 4b
+-- ...
 
 
 -- ======================================================
@@ -68,13 +78,22 @@ BEGIN
 	UPDATE trabalho_g1.sessao
 	SET ingressos_disponiveis = nova_quantidade_ingressos_disponiveis
 	WHERE cod_sessao = NEW.cod_sessao;
+
+	RETURN NEW;
 END
 $BODY$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trabalho_g1.trg_decrementa_ingressos_disponiveis
+CREATE TRIGGER trg_decrementa_ingressos_disponiveis
 	AFTER INSERT ON trabalho_g1.reserva
 	FOR EACH ROW
 	EXECUTE PROCEDURE trabalho_g1.fn_decrementa_ingressos_disponiveis();
+
+-- Exemplos para 4c
+-- ...
+
+
+-- ======================================================
+
 
 -- 4d
 CREATE OR REPLACE FUNCTION trabalho_g1.fn_incrementa_ingressos_disponiveis()
@@ -93,13 +112,18 @@ BEGIN
 	UPDATE trabalho_g1.sessao
 	SET ingressos_disponiveis = nova_quantidade_ingressos_disponiveis
 	WHERE cod_sessao = OLD.cod_sessao;
+
+	RETURN NEW;
 END
 $BODY$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trabalho_g1.trg_incrementa_ingressos_disponiveis
+CREATE TRIGGER trg_incrementa_ingressos_disponiveis
 	AFTER DELETE ON trabalho_g1.reserva
 	FOR EACH ROW
 	EXECUTE PROCEDURE trabalho_g1.fn_incrementa_ingressos_disponiveis();
+
+-- Exemplos para 4d
+-- ...
 
 
 -- ======================================================
@@ -110,16 +134,19 @@ CREATE OR REPLACE FUNCTION trabalho_g1.fn_inativar_pedido()
 RETURNS TRIGGER AS
 $BODY$
 DECLARE
-    RAISE EXCEPTION 'Nao implementado';
-BEGIN
 
+BEGIN
+	RETURN NULL;
 END
 $BODY$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trabalho_g1.trg_inativar_pedido
+CREATE TRIGGER trg_inativar_pedido
 	BEFORE DELETE ON trabalho_g1.pedido
 	FOR EACH ROW
 	EXECUTE PROCEDURE trabalho_g1.fn_inativar_pedido();
+
+-- Exemplos para 4e
+-- ...
 
 
 -- ======================================================
@@ -148,7 +175,10 @@ BEGIN
 END
 $BODY$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trabalho_g1.trg_impossibilita_exclusao_cliente 
+CREATE TRIGGER trg_impossibilita_exclusao_cliente 
 	BEFORE DELETE ON trabalho_g1.cliente
 	FOR EACH ROW
 	EXECUTE PROCEDURE trabalho_g1.fn_impossibilita_exclusao_cliente();
+
+-- Exemplos para 4f
+-- ...
