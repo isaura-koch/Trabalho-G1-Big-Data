@@ -1,119 +1,35 @@
-SET search_path TO trabalho_g1;
 
 
------Retorna o total de ingressos disponiveis
-Select * from sessao;
-
-CREATE OR REPLACE FUNCTION sessao_ingresso(numeric(5))
-	RETURNS INTEGER AS
-	
-$$
-DECLARE
-	sessao_line ALIAS FOR $1;
-	count_ingress1 integer;
-	count_ingress2 integer;
-BEGIN
-	count_ingress1 = (SELECT total_ingressos FROM sessao WHERE cod_sessao = sessao_line );
-	count_ingress2 = (SELECT ingressos_disponiveis FROM sessao WHERE cod_sessao = sessao_line );
-	
-	IF(count_ingress1 != null OR count_ingress2 != null) THEN
-		RAISE NOTICE 'Ingressos totais: % | Inrgessos disponiveis: %', count_ingress1, count_ingress2;
-		RETURN count_ingress2;
-		
-	ELSE
-		RAISE EXCEPTION 'O codigo da sessao % está não existe!', sessao_line
-		USING HINT = 'Verifique o codigo da sessao';
-	
-	END IF;
-	
-END
-$$ LANGUAGE plpgsql;
-
-select sessao_ingresso(1);
-
--------Retorna a cadeira reservada pelo cod_reserva
-Select * from reserva;
-
-CREATE OR REPLACE FUNCTION reserva_assentos(numeric(5))
-	RETURNS INTEGER AS
-	
-$$
-DECLARE
-	acento_code ALIAS FOR $1;
-	cadeira_reservada integer;
-	
-BEGIN
-	cadeira_reservada = (SELECT cadeira FROM reserva WHERE cod_reserva = acento_code );
-	IF(cadeira_reservada != null) THEN
-		RETURN cadeira_reservada;
-	ELSE
-		RAISE EXCEPTION 'A cadeira reservada % não existe!', acento_code
-		USING HINT = 'Verifique o codigo da reserva';
-		
-	END IF; 
-END
-$$ LANGUAGE plpgsql;
-
-select reserva_assentos(1);
-
----------Retorna a quantidade de pedidos de um determinado cliente
-Select * from pedido;
-Select * from cliente;
-
-CREATE OR REPLACE FUNCTION cliente_pedido(numeric(5))
-	RETURNS INTEGER AS
-	
-$$
+--------- RETORNA A QUANTIDADE DE PEDIDOS DE UM DETERMINADO CLIENTE
+CREATE OR REPLACE FUNCTION trabalho_g1.cliente_pedido(
+	numeric)
+    RETURNS double precision
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
 DECLARE
 	codigo_cliente ALIAS FOR $1;
 	num_pedidos integer;
 	
 BEGIN
 	num_pedidos = (SELECT COUNT(cod_pedido) FROM pedido WHERE cod_cliente = codigo_cliente );
-	IF(num_pedidos != null OR num_pedidos != 0) THEN
+	IF(num_pedidos != 0) THEN
 		RETURN num_pedidos;
 	ELSE
-		RAISE EXCEPTION 'O numero % do cliente não existe', num_pedidos
+		RAISE EXCEPTION 'O numero % do cliente não existe', codigo_cliente
 		USING HINT = 'Verifique o codigo do cliente';
 	END IF;
 	
 END
-$$ LANGUAGE plpgsql;
+$BODY$;
 
-Select cliente_pedido(1);
-
-
----------Retorna o codigo do espetáculo referente ao codigo da reserva
-CREATE OR REPLACE FUNCTION espetaculos_reservas(numeric(5))
-	RETURNS INTEGER AS
-	
-$$
-DECLARE
-	num_pedido ALIAS FOR $1;
-	espetaculo integer;
-
-BEGIN
-	espetaculo = (SELECT cod_espetaculo FROM reserva WHERE cod_pedido = num_pedido  );
-	IF(espetaculo) != null THEN
-		RETURN espetaculo;
-	ELSE 
-		RAISE EXCEPTION 'O codigo do pedido % está não existe!', num_pedido
-		USING HINT = 'Verifique o codigo do pedido';
-	END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-select espetaculos_reservas(1)
+SELECT cliente_pedido(203);
 
 
---------- Retorna o codigo do espetaculo da cidade do cliente 
-Select * from espetaculo;
-Select * from estabelecimento;
-Select * from cidade;
-Select * from cliente;
-
-
-CREATE OR REPLACE FUNCTION trabalho_g1.esp_cid_cli(numeric)
+--------- RETORNA A QUANTIA DE ESPETACULOS NA CIDADE DO CLIENTE
+CREATE OR REPLACE FUNCTION trabalho_g1.esp_cid_cli(
+	numeric)
     RETURNS double precision
     LANGUAGE 'plpgsql'
     COST 100
@@ -140,6 +56,96 @@ BEGIN
 		USING HINT = 'Verifique o codigo do cliente';
 	END IF;
 END;
-				
-				
-SELECT esp_cid_cli(1);
+$BODY$;
+
+SELECT esp_cid_cli(107);
+
+
+--------- RETORNA O QUANTIA DE ESPETÁCULO REFERENTE AO CODIGO DO PEDIDO
+CREATE OR REPLACE FUNCTION trabalho_g1.espetaculos_reservas(
+	numeric)
+    RETURNS double precision
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+	num_pedido ALIAS FOR $1;
+	espetaculo integer;
+
+BEGIN
+	espetaculo = (SELECT COUNT(cod_espetaculo) FROM reserva WHERE cod_pedido = num_pedido);
+	IF(espetaculo) != 0 THEN
+		RETURN espetaculo;
+	ELSE 
+		RAISE EXCEPTION 'O codigo do pedido % está não existe!', num_pedido
+		USING HINT = 'Verifique o codigo do pedido';
+	END IF;
+END;
+$BODY$;
+
+SELECT espetaculos_reservas(1104);
+
+
+------- RETORNA A CADEIRA RESERVADA PELO COD_RESERVA
+CREATE OR REPLACE FUNCTION trabalho_g1.reserva_assentos(
+	numeric)
+    RETURNS character varying
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+	reserva_cod ALIAS FOR $1;
+	cadeira_reservada character varying;
+	
+BEGIN
+	cadeira_reservada = (SELECT cadeira FROM reserva WHERE cod_reserva = reserva_cod);
+	IF (cadeira_reservada IS NOT null) THEN
+		RETURN cadeira_reservada;
+	ELSE
+		RAISE EXCEPTION 'A reserva % não tem cadeira !', reserva_cod
+		USING HINT = 'Verifique o codigo da reserva';
+		
+	END IF; 
+END
+$BODY$;
+
+SELECT reserva_assentos(1204)
+
+
+-------- RETORNA OS INGRESSOS DISPONIVEIS DA SESSÃO ESCOLHIDA
+CREATE OR REPLACE FUNCTION trabalho_g1.sessao_ingresso(
+	numeric)
+    RETURNS double precision
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+	sessao_line ALIAS FOR $1;
+	count_ingress1 integer;
+	count_ingress2 integer;
+BEGIN
+	count_ingress1 = (SELECT total_ingressos FROM sessao WHERE cod_sessao = sessao_line );
+	count_ingress2 = (SELECT ingressos_disponiveis FROM sessao WHERE cod_sessao = sessao_line );
+	
+	IF(count_ingress1 IS NOT null OR count_ingress2 IS NOT null) THEN
+		RAISE NOTICE 'Ingressos totais: % | Ingressos disponiveis: %', count_ingress1, count_ingress2;
+		RETURN count_ingress2;
+		
+	ELSE
+		RAISE EXCEPTION 'O codigo da sessao % está não existe!', sessao_line
+		USING HINT = 'Verifique o codigo da sessao';
+	
+	END IF;
+	
+END
+$BODY$;
+
+SELECT sessao_ingresso(1303)
+
+
+
+
+
