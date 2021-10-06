@@ -23,7 +23,24 @@ CREATE TRIGGER trg_reserva_ingressos_se_disponiveis
 	EXECUTE PROCEDURE trabalho_g1.fn_reserva_ingressos_se_disponiveis();
 
 -- Exemplos para 4a
--- ...
+-- Erro
+INSERT INTO trabalho_g1.reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
+VALUES (
+	(select cod_pedido from trabalho_g1.pedido LIMIT 1),
+	(select cod_espetaculo from trabalho_g1.espetaculo LIMIT 1),
+	(select cod_sessao from trabalho_g1.sessao where ingressos_disponiveis = 0 LIMIT 1),
+	'A - 101'
+);
+
+-- Sucesso
+INSERT INTO trabalho_g1.reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
+VALUES (
+	(select cod_pedido from trabalho_g1.pedido LIMIT 1),
+	(select cod_espetaculo from trabalho_g1.espetaculo LIMIT 1),
+	(select cod_sessao from trabalho_g1.sessao where ingressos_disponiveis != 0 LIMIT 1),
+	'A - 101'
+);
+SELECT * FROM trabalho_g1.reserva ORDER BY cod_reserva DESC;
 
 
 -- ======================================================
