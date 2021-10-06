@@ -150,9 +150,14 @@ CREATE TRIGGER trg_incrementa_ingressos_disponiveis
 CREATE OR REPLACE FUNCTION trabalho_g1.fn_inativar_pedido()
 RETURNS TRIGGER AS
 $BODY$
-DECLARE
-
 BEGIN
+	DELETE FROM trabalho_g1.reserva
+	WHERE cod_pedido = OLD.cod_pedido;
+
+	UPDATE trabalho_g1.pedido
+	SET status = 'I', data_cancelamento = CURRENT_DATE
+	WHERE cod_pedido = OLD.cod_pedido
+
 	RETURN NULL;
 END
 $BODY$ LANGUAGE plpgsql;
