@@ -12,24 +12,24 @@ LANGUAGE plpgsql AS $$
 	$$;
 	
 --Ex:
-	DO
-	$$
-	DECLARE	
+	-- DO
+	-- $$
+	-- DECLARE	
 	
-		cod_espet INT := 2114;
-		dt_inicio TIMESTAMP WITHOUT TIME ZONE := CURRENT_DATE;
-		cod_periodicidade INT := 4;
-		duracao INT := 120;
-		preco NUMERIC := 27.52;
-		cod_novo INT;
+	-- 	cod_espet INT := 2114;
+	-- 	dt_inicio TIMESTAMP WITHOUT TIME ZONE := CURRENT_DATE;
+	-- 	cod_periodicidade INT := 4;
+	-- 	duracao INT := 120;
+	-- 	preco NUMERIC := 27.52;
+	-- 	cod_novo INT;
 		
-	BEGIN 
+	-- BEGIN 
 	
-		CALL criar_sessoes(cod_espet, dt_inicio, cod_periodicidade, duracao, preco);
-		cod_novo := (SELECT MAX(cod_sessao) FROM sessao);
-		RAISE NOTICE 'Cód. Criado: %', cod_novo;
-	END;
-	$$
+	-- 	CALL criar_sessoes(cod_espet, dt_inicio, cod_periodicidade, duracao, preco);
+	-- 	cod_novo := (SELECT MAX(cod_sessao) FROM sessao);
+	-- 	RAISE NOTICE 'Cód. Criado: %', cod_novo;
+	-- END;
+	-- $$
 
 -----Procedure B
 --Define a quantidade de ingressos que determinada sessão terá em sua totalidade
@@ -45,21 +45,21 @@ LANGUAGE plpgsql AS $$
 	$$;
 	
 --Ex:
-	DO
-	$$
-	DECLARE
+	-- DO
+	-- $$
+	-- DECLARE
 	
-		cod_ses INT := 1360;
-		tot_ingressos INT := 250;
+	-- 	cod_ses INT := 1360;
+	-- 	tot_ingressos INT := 250;
 		
-	BEGIN 
+	-- BEGIN 
 	
-		CALL define_total_ingressos(cod_ses, tot_ingressos);
+	-- 	CALL define_total_ingressos(cod_ses, tot_ingressos);
 		
-	END;
-	$$
-	
-SELECT cod_sessao, total_ingressos FROM sessao where cod_sessao = 1360
+	-- END;
+	-- $$
+
+-- SELECT cod_sessao, total_ingressos FROM sessao where cod_sessao = 1360
 
 ----Procedure C
 --Cria um pedido com as informações nos parametros e retorna o código do pedido criado
@@ -82,25 +82,25 @@ LANGUAGE plpgsql AS $$
 
 --Ex:
 
-DO
-	$$
-	DECLARE
+-- DO
+-- 	$$
+-- 	DECLARE
 	
-		dt_pedido TIMESTAMP WITHOUT TIME ZONE := CURRENT_DATE;
-		cod_cliente_ativo INT := 115;
-		cod_cliente_inativo INT := 114;
-		cod_pedido_criado INT;
+-- 		dt_pedido TIMESTAMP WITHOUT TIME ZONE := CURRENT_DATE;
+-- 		cod_cliente_ativo INT := 115;
+-- 		cod_cliente_inativo INT := 114;
+-- 		cod_pedido_criado INT;
 		
-	BEGIN 
-		--Cliente Ativo
-		CALL criar_pedido(dt_pedido, cod_cliente_ativo, cod_pedido_criado);
-		RAISE NOTICE 'Pedido Criado: %', cod_pedido_criado;
-		--Cliente Inativo
-		CALL criar_pedido(dt_pedido, cod_cliente_inativo, cod_pedido_criado);
+-- 	BEGIN 
+-- 		--Cliente Ativo
+-- 		CALL criar_pedido(dt_pedido, cod_cliente_ativo, cod_pedido_criado);
+-- 		RAISE NOTICE 'Pedido Criado: %', cod_pedido_criado;
+-- 		--Cliente Inativo
+-- 		CALL criar_pedido(dt_pedido, cod_cliente_inativo, cod_pedido_criado);
 		
 		
-	END;
-	$$
+-- 	END;
+-- 	$$
 
 ----Procedure D
 --Cria uma reserva com os dados inseridos nos parametros
@@ -130,37 +130,37 @@ LANGUAGE plpgsql AS $$
 	
 --Ex:
 
-	DO
-	$$
-	DECLARE
+	-- DO
+	-- $$
+	-- DECLARE
 	
-		cod_espetaculo_existente INT := 2116;
-		cod_sessao_existente INT := 1309;
-		cod_pedido_existente INT := 5414;
+	-- 	cod_espetaculo_existente INT := 2116;
+	-- 	cod_sessao_existente INT := 1309;
+	-- 	cod_pedido_existente INT := 5414;
 		
-		cod_espetaculo_inexistente INT := 50;
-		cod_sessao_inexistente INT := 1293;
-		cod_pedido_inexistente INT := 12;
+	-- 	cod_espetaculo_inexistente INT := 50;
+	-- 	cod_sessao_inexistente INT := 1293;
+	-- 	cod_pedido_inexistente INT := 12;
 		
-		cadeira VARCHAR(10) = md5((RANDOM()::TEXT))::varchar(10);
+	-- 	cadeira VARCHAR(10) = md5((RANDOM()::TEXT))::varchar(10);
 		
-		reserva_criada INT;
+	-- 	reserva_criada INT;
 		
-	BEGIN 
-		--Sessao e Espetaculo Existentes
-		CALL criar_reserva(cod_espetaculo_existente, cod_sessao_existente, cod_pedido_existente, cadeira);
-		reserva_criada := (SELECT MAX(cod_reserva) FROM reserva);
-		RAISE NOTICE 'Cód. Criado: %', reserva_criada;
+	-- BEGIN 
+	-- 	--Sessao e Espetaculo Existentes
+	-- 	CALL criar_reserva(cod_espetaculo_existente, cod_sessao_existente, cod_pedido_existente, cadeira);
+	-- 	reserva_criada := (SELECT MAX(cod_reserva) FROM reserva);
+	-- 	RAISE NOTICE 'Cód. Criado: %', reserva_criada;
 		
-		--Sessao Inexistentes
-		CALL criar_reserva(cod_espetaculo_existente, cod_sessao_inexistente, cod_pedido_existente, cadeira);
+	-- 	--Sessao Inexistentes
+	-- 	CALL criar_reserva(cod_espetaculo_existente, cod_sessao_inexistente, cod_pedido_existente, cadeira);
 		
-		--Espetaculo Inexistentes
-		CALL criar_reserva(cod_espetaculo_inexistente, cod_sessao_existente, cod_pedido_existente, cadeira);
+	-- 	--Espetaculo Inexistentes
+	-- 	CALL criar_reserva(cod_espetaculo_inexistente, cod_sessao_existente, cod_pedido_existente, cadeira);
 		
 		
-	END;
-	$$
+	-- END;
+	-- $$
 	
 
 ----Procedure E
@@ -201,16 +201,16 @@ LANGUAGE plpgsql AS $$
 
 --Ex:
 
-	DO
-	$$
-	DECLARE
-		cod_cliente INT := 203;	
-	BEGIN 
-		CALL registra_notificacao(203);
-	END;
-	$$
+	-- DO
+	-- $$
+	-- DECLARE
+	-- 	cod_cliente INT := 203;	
+	-- BEGIN 
+	-- 	CALL registra_notificacao(203);
+	-- END;
+	-- $$
 
-	select * from notificacao
+	-- select * from notificacao
 
 --insert into reserva (cod_pedido, cod_espetaculo, cod_sessao, cadeira) values (5418, 2123,1302, 'aaaabb')
 --insert into reserva (cod_pedido, cod_espetaculo, cod_sessao, cadeira) values (5434, 2125,1307, 'aaaabb')

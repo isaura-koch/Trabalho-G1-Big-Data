@@ -24,7 +24,7 @@ BEGIN
 END
 $BODY$;
 
-SELECT cliente_pedido(203);
+-- SELECT cliente_pedido(203);
 
 
 --------- RETORNA A QUANTIA DE ESPETACULOS NA CIDADE DO CLIENTE
@@ -58,7 +58,7 @@ BEGIN
 END;
 $BODY$;
 
-SELECT esp_cid_cli(107);
+-- SELECT esp_cid_cli(107);
 
 
 --------- RETORNA O QUANTIA DE ESPETÁCULO REFERENTE AO CODIGO DO PEDIDO
@@ -84,7 +84,7 @@ BEGIN
 END;
 $BODY$;
 
-SELECT espetaculos_reservas(1104);
+-- SELECT espetaculos_reservas(1104);
 
 
 ------- RETORNA A CADEIRA RESERVADA PELO COD_RESERVA
@@ -111,7 +111,7 @@ BEGIN
 END
 $BODY$;
 
-SELECT reserva_assentos(1204)
+-- SELECT reserva_assentos(1204)
 
 
 -------- RETORNA OS INGRESSOS DISPONIVEIS DA SESSÃO ESCOLHIDA
@@ -143,9 +143,4 @@ BEGIN
 END
 $BODY$;
 
-SELECT sessao_ingresso(1303)
-
-
-
-
-
+-- SELECT sessao_ingresso(1303)

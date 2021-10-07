@@ -24,23 +24,23 @@ CREATE TRIGGER trg_reserva_ingressos_se_disponiveis
 
 -- Exemplos para 4a
 -- Erro
-INSERT INTO trabalho_g1.reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
-VALUES (
-	(select cod_pedido from trabalho_g1.pedido LIMIT 1),
-	(select cod_espetaculo from trabalho_g1.espetaculo LIMIT 1),
-	(select cod_sessao from trabalho_g1.sessao where ingressos_disponiveis = 0 LIMIT 1),
-	'A - 101'
-);
+-- INSERT INTO trabalho_g1.reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
+-- VALUES (
+-- 	(select cod_pedido from trabalho_g1.pedido LIMIT 1),
+-- 	(select cod_espetaculo from trabalho_g1.espetaculo LIMIT 1),
+-- 	(select cod_sessao from trabalho_g1.sessao where ingressos_disponiveis = 0 LIMIT 1),
+-- 	'A - 101'
+-- );
 
 -- Sucesso
-INSERT INTO trabalho_g1.reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
-VALUES (
-	(select cod_pedido from trabalho_g1.pedido LIMIT 1),
-	(select cod_espetaculo from trabalho_g1.espetaculo LIMIT 1),
-	(select cod_sessao from trabalho_g1.sessao where ingressos_disponiveis != 0 LIMIT 1),
-	'A - 101'
-);
-SELECT * FROM trabalho_g1.reserva ORDER BY cod_reserva DESC;
+-- INSERT INTO trabalho_g1.reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
+-- VALUES (
+-- 	(select cod_pedido from trabalho_g1.pedido LIMIT 1),
+-- 	(select cod_espetaculo from trabalho_g1.espetaculo LIMIT 1),
+-- 	(select cod_sessao from trabalho_g1.sessao where ingressos_disponiveis != 0 LIMIT 1),
+-- 	'A - 101'
+-- );
+-- SELECT * FROM trabalho_g1.reserva ORDER BY cod_reserva DESC;
 
 
 -- ======================================================
@@ -90,7 +90,7 @@ BEGIN
 	FROM trabalho_g1.sessao
 	WHERE cod_sessao = NEW.cod_sessao;
 
-	nova_quantidade_ingressos_disponiveis := quantidade_ingressos_disponiveis - 1
+	nova_quantidade_ingressos_disponiveis := quantidade_ingressos_disponiveis - 1;
 
 	UPDATE trabalho_g1.sessao
 	SET ingressos_disponiveis = nova_quantidade_ingressos_disponiveis
@@ -124,13 +124,13 @@ BEGIN
 	FROM trabalho_g1.sessao
 	WHERE cod_sessao = OLD.cod_sessao;
 
-	nova_quantidade_ingressos_disponiveis := quantidade_ingressos_disponiveis + 1
+	nova_quantidade_ingressos_disponiveis := quantidade_ingressos_disponiveis + 1;
 
 	UPDATE trabalho_g1.sessao
 	SET ingressos_disponiveis = nova_quantidade_ingressos_disponiveis
 	WHERE cod_sessao = OLD.cod_sessao;
 
-	RETURN NEW;
+	RETURN OLD;
 END
 $BODY$ LANGUAGE plpgsql;
 
@@ -156,7 +156,7 @@ BEGIN
 
 	UPDATE trabalho_g1.pedido
 	SET status = 'I', data_cancelamento = CURRENT_DATE
-	WHERE cod_pedido = OLD.cod_pedido
+	WHERE cod_pedido = OLD.cod_pedido;
 
 	RETURN NULL;
 END
@@ -193,7 +193,7 @@ BEGIN
 		RAISE EXCEPTION 'Nao modifique o status do cliente para inativo, pois o mesmo possui pedidos ativos';
     END IF;
 
-	RAISE EXCEPTION CONCAT(msg_padrao, '. ', msg_pedidos_ativos);
+	RAISE EXCEPTION '%', CONCAT(msg_padrao, '. ', msg_pedidos_ativos);
 END
 $BODY$ LANGUAGE plpgsql;
 

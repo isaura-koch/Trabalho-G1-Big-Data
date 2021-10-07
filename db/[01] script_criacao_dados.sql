@@ -3,14 +3,14 @@
 
 set search_path to trabalho_g1;
 
-NSERT INTO cidade(nome, uf) VALUES ('Passo Fundo', 'rs'), ('Florianópolis', 'sc') ;
+INSERT INTO cidade(nome, uf) VALUES ('Passo Fundo', 'rs'), ('Florianópolis', 'sc');
 
 INSERT INTO cliente(nome, sobrenome, cpf, endereco_entrega, cod_cidade, status)
 SELECT md5((RANDOM()::TEXT))::varchar(11),
 	md5((RANDOM()::TEXT))::varchar(11),
 	md5((RANDOM()::TEXT))::varchar(11),
 	md5(RANDOM()::TEXT),
-	(RANDOM() + (select cod_cidade from cidade order by random() limit 1)), 
+	(select cod_cidade from cidade order by random() limit 1), 
 	CASE WHEN RANDOM() < 0.5 THEN 'A' ELSE 'I' END
 	FROM generate_series(1, 100);
 		
@@ -26,14 +26,14 @@ INSERT INTO estabelecimento(nome, endereco, tem_estacionamento, cod_tipo_espetac
 	md5((RANDOM()::TEXT))::varchar(11),
 	CASE WHEN RANDOM() < 0.7 THEN TRUE
 	ELSE FALSE END,
-	(RANDOM() + (select cod_tipo_espetaculo from tipo_espetaculo order by random() limit 1)),
-	(RANDOM() + (select cod_cidade from cidade order by random() limit 1))	
+	(select cod_tipo_espetaculo from tipo_espetaculo order by random() limit 1),
+	(select cod_cidade from cidade order by random() limit 1)
 	FROM generate_series(1,100);
 	
 INSERT INTO espetaculo(nome, descricao, cod_estabelecimento)
 	SELECT md5((RANDOM()::TEXT))::varchar(11),
 	md5((RANDOM()::TEXT))::varchar(11),
-	(RANDOM() + (select cod_estabelecimento from estabelecimento order by random() limit 1))
+	(select cod_estabelecimento from estabelecimento order by random() limit 1)
 	FROM generate_series(1,100);
 	
 	
@@ -44,7 +44,7 @@ INSERT INTO sessao(cod_espetaculo, data_hora_inicio, duracao, total_ingressos, i
 	(random() * 47 + 100::INT),
 	(random() * 47 + 10::INT),
 	(random() * 10 + 20),
-	(RANDOM() + (select cod_periodicidade from periodicidade order by random() limit 1))
+	(select cod_periodicidade from periodicidade order by random() limit 1)
 	FROM generate_series(1,100);
 
 
@@ -62,5 +62,3 @@ INSERT INTO reserva(cod_pedido, cod_espetaculo, cod_sessao, cadeira)
 	(select cod_sessao from sessao order by random() limit 1),
 	md5((RANDOM()::TEXT))::varchar(4)
 	FROM generate_series(1,100);
-	
-	
