@@ -15,17 +15,17 @@ Este projeto tem como objetivo demonstrar o uso dos recursos da linguagem plpgSQ
 
 - Ter o docker/docker-compose instalado e rodando.
 
-- Para a execução local, utilize o comando abaixo para subir o container com o banco de dados:
+- Para a execução local, utilize o comando abaixo para _subir_ o container com o banco de dados:
   ```sh
   make container-start
   ```
 
-- Para parar a execução, utilize o comando:
+- Para _parar_ a execução, utilize o comando:
   ```sh
   make container-stop
   ```
 
-- Para obter os status do container, utilize o comando:
+- Para obter os _status_ do container, utilize o comando:
   ```sh
   make container-status
   ```
@@ -35,9 +35,9 @@ Este projeto tem como objetivo demonstrar o uso dos recursos da linguagem plpgSQ
 <!-- CONECTANDO-BANCO -->
 ## Conectando-se ao banco de dados
 
-- Para conectar-se ao banco de dados utilize a ferramente [Adminer](https://www.adminer.org) disponibilizada pelo próprio container, ou a que preferir (como [pgAdmin](https://www.pgadmin.org), [DataGrip](https://www.jetbrains.com/pt-br/datagrip/), ...).
+- Para fazer a conexão utilize a ferramenta [Adminer](https://www.adminer.org), disponibilizada pelo próprio container na porta _8080_ (http://localhost:8080), ou a que preferir (como [pgAdmin](https://www.pgadmin.org), [DataGrip](https://www.jetbrains.com/pt-br/datagrip/), entre outras).
 
-- Dentro da ferramente utilize os seguintes dados para fazer a conexão:
+- Dentro da ferramenta use as seguintes credenciais para fazer a conexão com o banco:
   | Chave     | Valor          |
   |-----------|----------------|
   | DB        | postgres       |
