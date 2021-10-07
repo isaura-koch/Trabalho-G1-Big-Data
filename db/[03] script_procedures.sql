@@ -185,19 +185,20 @@ LANGUAGE plpgsql AS $$
 			data_pedido BETWEEN current_date - 30 AND current_date
 			
 		LOOP 
-			--Insersão dos valores na tabela
-			INSERT INTO notificacao (data_notificacao, cod_pedido, mensagem)
-				SELECT current_date,
-				cod_pedido_existente,
-				'Total dos gastos: ' || 
-					--Soma do valor das sessões, usando o cód. do pedido como base
-					(SELECT SUM(preco) FROM sessao s
-					JOIN reserva r ON s.cod_sessao = r.cod_sessao
-					WHERE r.cod_pedido = cod_pedido_existente);
+			--Insersão dos valores na tabela, caso os pedidos retornados ainda não estejam na tabela notificacao
+			IF NOT EXISTS(SELECT cod_pedido FROM notificacao where cod_pedido = cod_pedido_existente) THEN
+				INSERT INTO notificacao (data_notificacao, cod_pedido, mensagem)
+					SELECT current_date,
+					cod_pedido_existente,
+					'Total dos gastos: ' || 
+						--Soma do valor das sessões, usando o cód. do pedido como base
+						(SELECT SUM(preco) FROM sessao s
+						JOIN reserva r ON s.cod_sessao = r.cod_sessao
+						WHERE r.cod_pedido = cod_pedido_existente);
+			END IF;
 		END LOOP;
 
 	END;
-	$$;
 
 --Ex:
 
