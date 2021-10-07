@@ -1,0 +1,17 @@
+services:
+
+  db:
+    build: .
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: G1BigDataFahad
+      POSTGRES_PASSWORD: edlindo123
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
