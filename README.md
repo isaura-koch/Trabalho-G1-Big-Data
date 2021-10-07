@@ -41,6 +41,6 @@ Este projeto tem como objetivo demonstrar o uso dos recursos da linguagem plpgSQ
   | Chave     | Valor          |
   |-----------|----------------|
   | DB        | postgres       |
-  | USER      | G1BigDataFahad |
+  | USER      | BDAFahadG1     |
   | PASSWORD  | edlindo123     |
   | PORT      | 5432           |

@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_USER: G1BigDataFahad
+      POSTGRES_USER: BDAFahadG1
       POSTGRES_PASSWORD: edlindo123
     ports:
       - 5432:5432
